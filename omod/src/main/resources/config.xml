@@ -18,9 +18,6 @@
 		<require_module version="${eventVersion}">
 			org.openmrs.event
 		</require_module>
-		<require_module>
-			org.openmrs.module.labintegration
-		</require_module>
 	</require_modules>
 	
 	<!-- <updateURL>https://modules.openmrs.org/modules/download/@MODULE_ID@/update.rdf</updateURL> -->
@@ -43,6 +40,11 @@
 	<globalProperty>
 		<property>xdssender.repositoryEndpoint</property>
 		<description>Specifies endpoint to XDS repository</description>
+	</globalProperty>
+
+	<globalProperty>
+		<property>xdssender.registryEndpoint</property>
+		<description>Specifies endpoint to XDS registry</description>
 	</globalProperty>
 
 	<globalProperty>

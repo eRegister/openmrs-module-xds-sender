@@ -6,7 +6,7 @@
 	<parent>
 		<groupId>org.openmrs.module</groupId>
 		<artifactId>xds-sender</artifactId>
-		<version>1.0.0</version>
+		<version>1.0.2</version>
 	</parent>
 
 	<artifactId>xds-sender-api</artifactId>
@@ -15,10 +15,6 @@
 	<description>API project for XDS Sender</description>
 
 	<dependencies>
-		<dependency>
-			<groupId>org.openmrs.module</groupId>
-			<artifactId>labintegration-api</artifactId>
-		</dependency>
 		<dependency>
 			<groupId>org.marc.everest</groupId>
 			<artifactId>everest-core</artifactId>

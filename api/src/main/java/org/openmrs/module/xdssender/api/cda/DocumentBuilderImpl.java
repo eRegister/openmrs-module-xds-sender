@@ -77,14 +77,21 @@ public class DocumentBuilderImpl implements DocumentBuilder {
 	 * Get the document type code
 	 */
 	public String getTypeCode() {
-		return "34133-9";
+		return "57055-6";
+	}
+
+	/**
+	 * Get the document code system (LOINC)
+	 */
+	public String getCodeSystem() {
+		return "2.16.840.1.113883.6.1";
 	}
 	
 	/**
 	 * Get the document format code
 	 */
 	public String getFormatCode() {
-		return "CDAR2/IHE 1.0";
+		return "urn:ihe:pcc:aps:2007";
 	}
 	
 	/**
@@ -122,9 +129,9 @@ public class DocumentBuilderImpl implements DocumentBuilder {
 		try {
 			ClinicalDocument retVal = new ClinicalDocument();
 			retVal.setTypeId(new II("2.16.840.1.113883.1.3", "POCD_HD000040"));
-			retVal.setCode(this.getTypeCode());
+			retVal.setCode(this.getTypeCode(), this.getCodeSystem());
 			retVal.setRealmCode(SET.createSET(new CS<BindingRealm>(BindingRealm.UniversalRealmOrContextUsedInEveryInstance)));
-			retVal.setTemplateId(LIST.createLIST(new II(XdsSenderConstants.DOC_TEMPLATE_MEDICAL_DOCUMENTS)));
+			retVal.setTemplateId(LIST.createLIST(new II(XdsSenderConstants.DOC_TEMPLATE_ANTEPARTUM_SUMMARY)));
 			// Identifier is the SHR root of the odd document ODD ID + Current Time (making the UUID of the ODD)
 			TS idDate = TS.now();
 			idDate.setDateValuePrecision(TS.SECONDNOTIMEZONE);
@@ -172,8 +179,14 @@ public class DocumentBuilderImpl implements DocumentBuilder {
 					for (Provider pvdr : encounterProvider.getValue()) {
 						Performer1 performer = new Performer1(x_ServiceEventPerformer.PRF,
 								cdaDataUtil.createAssignedEntity(pvdr));
-						performer.setFunctionCode((CE<ParticipationFunction>) cdaDataUtil.parseCodeFromString(
-							encounterProvider.getKey().getDescription(), CE.class));
+//						performer.setFunctionCode((CE<ParticipationFunction>) cdaDataUtil.parseCodeFromString(
+//							encounterProvider.getKey().getDescription(), CE.class));    %2$s^^^&%1$s&ISO
+
+//						performer.setFunctionCode((CE<ParticipationFunction>) cdaDataUtil.parseCodeFromString(
+//							"2.16.840.1.113883.2.25.60.1.10.2$s^^^&221$s&ISO", CE.class));
+
+						performer.setFunctionCode(new CE<ParticipationFunction> (ParticipationFunction.Midwife, "2.16.840.1.113883.2.25.60.1.10.2"));
+
 						event.getPerformer().add(performer);
 					}
 				}

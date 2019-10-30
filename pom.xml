@@ -11,10 +11,10 @@
 
 	<groupId>org.openmrs.module</groupId>
 	<artifactId>xds-sender</artifactId>
-	<version>1.0.0</version>
+	<version>1.0.2</version>
 	<packaging>pom</packaging>
 	<name>XDS Sender</name>
-	<description>Module for sending XDS.b documents for encounters</description>
+	<description>Module for sending XDS.b documents for encounters and retrieving XDS.b document from the XDS repository</description>
 
 	<scm>
 		<connection>scm:git:git@github.com:IsantePlus/openmrs-module-xds-sender.git</connection>
@@ -42,12 +42,6 @@
 
 	<dependencyManagement>
 		<dependencies>
-			<dependency>
-				<groupId>org.openmrs.module</groupId>
-				<artifactId>labintegration-api</artifactId>
-				<version>1.0.0-SNAPSHOT</version>
-				<scope>provided</scope>
-			</dependency>
 			<dependency>
 				<groupId>org.marc.everest</groupId>
 				<artifactId>everest-core</artifactId>

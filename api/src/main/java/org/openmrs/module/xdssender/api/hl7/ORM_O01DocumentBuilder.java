@@ -7,9 +7,9 @@ import org.marc.everest.rmim.uv.cdar2.vocabulary.ContextControl;
 import org.openmrs.Encounter;
 import org.openmrs.EncounterRole;
 import org.openmrs.Provider;
-import org.openmrs.module.labintegration.api.hl7.OrderGeneratorManager;
-import org.openmrs.module.labintegration.api.hl7.messages.MessageCreationException;
-import org.openmrs.module.labintegration.api.model.OrderDestination;
+//import org.openmrs.module.labintegration.api.hl7.OrderGeneratorManager;
+//import org.openmrs.module.labintegration.api.hl7.messages.MessageCreationException;
+//import org.openmrs.module.labintegration.api.model.OrderDestination;
 import org.openmrs.module.xdssender.api.cda.CdaDataUtil;
 import org.openmrs.module.xdssender.api.cda.model.DocumentModel;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,8 +36,8 @@ public class ORM_O01DocumentBuilder {
 
     private CdaDataUtil cdaDataUtil = CdaDataUtil.getInstance();
 
-    @Autowired
-    private OrderGeneratorManager orderGeneratorManager;
+    //@Autowired
+    //private OrderGeneratorManager orderGeneratorManager;
 
     public String getFormatCode() {
         return FORMAT_CODE;
@@ -53,7 +53,7 @@ public class ORM_O01DocumentBuilder {
 
     public DocumentModel buildDocument(Encounter encounter) {
         DocumentModel documentModel = null;
-        if (OrderDestination.searchForExistence(encounter, OrderDestination.SCC)) {
+        /*if (OrderDestination.searchForExistence(encounter, OrderDestination.SCC)) {
             try {
                 String message = orderGeneratorManager.generateORMO01Message(encounter, OrderDestination.SCC);
                 byte[] data = message.getBytes(StandardCharsets.UTF_8);
@@ -65,12 +65,12 @@ public class ORM_O01DocumentBuilder {
             } catch (MessageCreationException ex) {
                 log.error("Error generating orders:", ex);
             }
-        }
+        }*/
 
         return documentModel;
     }
 
-    private List<Author> getDocumentAuthors(Encounter encounter) {
+ /*   private List<Author> getDocumentAuthors(Encounter encounter) {
         List<Author> authors = new ArrayList<>();
         for (Map.Entry<EncounterRole, Set<Provider>> encounterProvider : encounter.getProvidersByRoles().entrySet()) {
             for (Provider pvdr : encounterProvider.getValue()) {
@@ -82,5 +82,5 @@ public class ORM_O01DocumentBuilder {
             }
         }
         return authors;
-    }
+    }*/
 }

@@ -140,8 +140,10 @@ public class CdaDataUtil {
 		} else {
 			T retVal;
 			try {
+				// Just set a none null empty instance and test
 				retVal = clazz.newInstance();
 				retVal.setNullFlavor(NullFlavor.Other);
+
 				return retVal;
 			}
 			catch (Exception e) {
@@ -281,7 +283,7 @@ public class CdaDataUtil {
 		
 		// Get the ID
 		retVal.setId(SET.createSET(new II(config.getProviderRoot(), pvdr.getId().toString()), new II(config.getUserRoot(),
-		        pvdr.getIdentifier())));
+				pvdr.getIdentifier())));
 		
 		// Set telecom
 		if (pvdr.getPerson() != null) {
@@ -464,9 +466,20 @@ public class CdaDataUtil {
 		// Identifiers
 		patientRole.setId(new SET<II>());
 		for (PatientIdentifier pid : patient.getActiveIdentifiers()) {
-			II ii = new II(pid.getIdentifierType().getName(), pid.getIdentifier());
-			if (!patientRole.getId().contains(ii))
-				patientRole.getId().add(ii);
+			// Rename to global identifiers
+			String pidName = pid.getIdentifierType().getName();
+			String globalPidName = null;
+
+			if(pidName.equalsIgnoreCase("ECID"))
+				globalPidName = "1.3.6.1.4.1.21367.2010.1.2.300";
+			else if(pidName.equalsIgnoreCase("Patient Identifier"))
+				globalPidName = "2.25.71280592878078638113873461180761116318";
+
+			if(!pidName.equalsIgnoreCase("HIV Program ID")) {
+				II ii = new II(globalPidName, pid.getIdentifier());
+				if (!patientRole.getId().contains(ii))
+					patientRole.getId().add(ii);
+			}
 		}
 		
 		// Address?

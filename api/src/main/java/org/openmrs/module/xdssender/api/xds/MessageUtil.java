@@ -54,6 +54,10 @@ public class MessageUtil {
 
 	private static final String SUBMITION_SET_ID = "SubmissionSet01";
 
+	// TODO: Temporarily hardcoded for initial release, must change in next iteration
+	private static final String nutritionalSetUuid = "84f626d0-3f10-11e4-adec-0800271c1b75";
+
+
 	@Autowired
 	private CdaDataUtil cdaDataUtil;
 	
@@ -95,7 +99,7 @@ public class MessageUtil {
 			throws JAXBException {
 		String patientId = getPatientIdentifier(info).getIdentifier();
 		String location = getPatientLocation(info).getName();
-		
+
 		ProvideAndRegisterDocumentSetRequestType retVal = new ProvideAndRegisterDocumentSetRequestType();
 		SubmitObjectsRequest registryRequest = new SubmitObjectsRequest();
 		retVal.setSubmitObjectsRequest(registryRequest);
@@ -104,13 +108,17 @@ public class MessageUtil {
 		ExtrinsicObjectType oddRegistryObject = new ExtrinsicObjectType();
 		
 		SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
-		
+
+		// TODO: Must set the formId to the UUID of the Root Concept Set when using the Bahmni (forms 1) and Form ID otherwise
+		// TODO: Temporarily using the nutritional set UUID for initial release, must change - Teboho Koma
 		// ODD
-		if (encounter.getForm() == null) {
-			throw new RuntimeException("Cannot send encounter without formId");
-		}
+		//if (encounter.getForm() == null) {
+		//	throw new RuntimeException("Cannot send encounter without formId");
+		//}
+		// encounter.getForm().getUuid()
+
 		oddRegistryObject.setId(encounter.getLocation().getUuid() + "/" + patientId + "/"
-		        + encounter.getEncounterType().getUuid() + "/" + encounter.getForm().getUuid() + "/"
+		        + encounter.getEncounterType().getUuid() + "/" + nutritionalSetUuid + "/"
 		        + format.format(encounter.getEncounterDatetime()) + "/" + info.getUniqueId());
 		oddRegistryObject.setMimeType("text/xml");
 		
@@ -155,38 +163,60 @@ public class MessageUtil {
 		InfosetUtil.addOrOverwriteSlot(oddRegistryObject, XDSConstants.SLOT_NAME_SOURCE_PATIENT_ID,
 		    String.format("%s^^^&%s&ISO", patientId, config.getEcidRoot()));
 		InfosetUtil.addOrOverwriteSlot(oddRegistryObject, XDSConstants.SLOT_NAME_SOURCE_PATIENT_INFO,
-		    String.format("PID-3|%s^^^&%s&ISO", nationalIdentifier.getIdentifier(), config.getCodeNationalRoot()),
-		    String.format("PID-3|%s^^^&%s&ISO", siteIdentifier.getIdentifier(), config.getCodeStRoot()),
-		    String.format("PID-5|%s^%s^^^", info.getPatient().getFamilyName(), info.getPatient().getGivenName()),
-		    String.format("PID-7|%s", patientDob.getValue()), String.format("PID-8|%s", info.getPatient().getGender()),
-		    String.format("PID-11|%s", location));
+				String.format("PID-3|%s^^^&%s&ISO", patientId, config.getEcidRoot()),
+				String.format("PID-3|%s^^^&%s&ISO", nationalIdentifier.getIdentifier(), config.getCodeNationalRoot()),
+				//String.format("PID-3|%s^^^&%s&ISO", siteIdentifier.getIdentifier(), config.getCodeStRoot()),
+				String.format("PID-5|%s^%s^^^", info.getPatient().getFamilyName(), info.getPatient().getGivenName()),
+				String.format("PID-7|%s", patientDob.getValue()), String.format("PID-8|%s", info.getPatient().getGender()),
+				String.format("PID-11|%s", location));
 		InfosetUtil.addOrOverwriteSlot(oddRegistryObject, XDSConstants.SLOT_NAME_LANGUAGE_CODE, Context.getLocale()
-		        .toString());
+				.toString());
 		InfosetUtil.addOrOverwriteSlot(oddRegistryObject, XDSConstants.SLOT_NAME_CREATION_TIME, new SimpleDateFormat(
-		        "yyyyMMddHHmmss").format(new Date()));
+				"yyyyMMddHHmmss").format(new Date()));
 		
 		// Unique identifier
 		xdsUtil.addExtenalIdentifier(oddRegistryObject, XDSConstants.UUID_XDSDocumentEntry_uniqueId,
 		    String.format("2.25.%s", UUID.randomUUID().getLeastSignificantBits()).replaceAll("-", ""),
 		    "XDSDocumentEntry.uniqueId");
 		xdsUtil.addExtenalIdentifier(oddRegistryObject, XDSConstants.UUID_XDSDocumentEntry_patientId,
-		    String.format("%s^^^%s&%s&NI", patientId, config.getEcidRoot(), config.getEcidRoot()),
+		    String.format("%s^^^%s&%s&ISO", patientId, config.getEcidRoot(), config.getEcidRoot()),
 		    "XDSDocumentEntry.patientId");
 		
 		// Set classifications
 		xdsUtil.addCodedValueClassification(oddRegistryObject, XDSConstants.UUID_XDSDocumentEntry_classCode,
-		    info.getClassCode(), "LOINC", "XDSDocumentEntry.classCode");
+		    info.getClassCode(), "2.16.840.1.113883.6.1", "XDSDocumentEntry.classCode");
+
 		xdsUtil.addCodedValueClassification(oddRegistryObject, XDSConstants.UUID_XDSDocumentEntry_confidentialityCode,
-		    "1.3.6.1.4.1.21367.2006.7.101", "Connect-a-thon confidentialityCodes", "XDSDocumentEntry.confidentialityCode");
+				"N", "2.16.840.1.113883.5.25", "Normal");
+
+//		xdsUtil.addCodedValueClassification(oddRegistryObject, XDSConstants.UUID_XDSDocumentEntry_confidentialityCode,
+//		    "1.3.6.1.4.1.21367.2006.7.101", "Connect-a-thon confidentialityCodes", "XDSDocumentEntry.confidentialityCode");
+
 		xdsUtil.addCodedValueClassification(oddRegistryObject, XDSConstants.UUID_XDSDocumentEntry_formatCode,
-		    info.getFormatCode(), "Connect-a-thon formatCodes", "XDSDocumentEntry.formatCode");
+				info.getFormatCode(), "1.3.6.1.4.1.19376.1.2.3", "XDSDocumentEntry.formatCode");
+
+//		xdsUtil.addCodedValueClassification(oddRegistryObject, XDSConstants.UUID_XDSDocumentEntry_formatCode,
+//		    info.getFormatCode(), "Connect-a-thon formatCodes", "XDSDocumentEntry.formatCode");
+
 		xdsUtil.addCodedValueClassification(oddRegistryObject,
-		    XDSConstants.UUID_XDSDocumentEntry_healthCareFacilityTypeCode, "Outpatient",
-		    "Connect-a-thon healthcareFacilityTypeCodes", "XDSDocumentEntry.healthCareFacilityTypeCode");
+				XDSConstants.UUID_XDSDocumentEntry_healthCareFacilityTypeCode, "281NR1301N",
+				"2.16.840.1.113883.5.11", "Hospitals; General Acute Care Hospital; Rural");
+
+//		xdsUtil.addCodedValueClassification(oddRegistryObject,
+//		    XDSConstants.UUID_XDSDocumentEntry_healthCareFacilityTypeCode, "Outpatient",
+//		    "Connect-a-thon healthcareFacilityTypeCodes", "XDSDocumentEntry.healthCareFacilityTypeCode");
+
 		xdsUtil.addCodedValueClassification(oddRegistryObject, XDSConstants.UUID_XDSDocumentEntry_practiceSettingCode,
-		    "General Medicine", "Connect-a-thon practiceSettingCodes", "UUID_XDSDocumentEntry.practiceSettingCode");
-		xdsUtil.addCodedValueClassification(oddRegistryObject, XDSConstants.UUID_XDSDocumentEntry_typeCode, "34108-1",
-		    "LOINC", "XDSDocumentEntry.typeCode");
+				"General Medicine", "Connect-a-thon practiceSettingCodes", "General Medicine");
+
+//		xdsUtil.addCodedValueClassification(oddRegistryObject, XDSConstants.UUID_XDSDocumentEntry_practiceSettingCode,
+//		    "General Medicine", "Connect-a-thon practiceSettingCodes", "UUID_XDSDocumentEntry.practiceSettingCode");
+
+		xdsUtil.addCodedValueClassification(oddRegistryObject, XDSConstants.UUID_XDSDocumentEntry_typeCode, "57055-6",
+				"2.16.840.1.113883.6.1", "Antepartum Summary Note");
+
+//		xdsUtil.addCodedValueClassification(oddRegistryObject, XDSConstants.UUID_XDSDocumentEntry_typeCode, "34108-1",
+//		    "LOINC", "XDSDocumentEntry.typeCode");
 		
 		// Create the submission set
 		TS now = TS.now();
@@ -194,19 +224,28 @@ public class MessageUtil {
 		
 		RegistryPackageType regPackage = new RegistryPackageType();
 		regPackage.setId(SUBMITION_SET_ID);
+
 		InfosetUtil.addOrOverwriteSlot(regPackage, XDSConstants.SLOT_NAME_SUBMISSION_TIME, now.getValue());
 		xdsUtil.addCodedValueClassification(regPackage, XDSConstants.UUID_XDSSubmissionSet_contentTypeCode,
-		    info.getClassCode(), "LOINC", "XDSSubmissionSet.contentTypeCode");
+				info.getClassCode(), "2.16.840.1.113883.6.1", "Antepartum Summary");
+
+//		InfosetUtil.addOrOverwriteSlot(regPackage, XDSConstants.SLOT_NAME_SUBMISSION_TIME, now.getValue());
+//		xdsUtil.addCodedValueClassification(regPackage, XDSConstants.UUID_XDSSubmissionSet_contentTypeCode,
+//		    info.getClassCode(), "LOINC", "XDSSubmissionSet.contentTypeCode");
 		
 		// Submission set external identifiers
 		xdsUtil.addExtenalIdentifier(regPackage, XDSConstants.UUID_XDSSubmissionSet_uniqueId,
 		    String.format("2.25.%s", UUID.randomUUID().getLeastSignificantBits()).replaceAll("-", ""),
 		    "XDSSubmissionSet.uniqueId");
+
 		xdsUtil.addExtenalIdentifier(regPackage, XDSConstants.UUID_XDSSubmissionSet_sourceId,
-		    String.format("2.25.%s", UUID.randomUUID().getLeastSignificantBits()).replaceAll("-", ""),
-		    "XDSSubmissionSet.sourceId");
+		    "1.3.6.1.4.1.21367.2010.1.2", "XDSSubmissionSet.sourceId");
+
+//		xdsUtil.addExtenalIdentifier(regPackage, XDSConstants.UUID_XDSSubmissionSet_sourceId,
+//		    "2.25.8001394383446219635", "XDSSubmissionSet.sourceId");
+
 		xdsUtil.addExtenalIdentifier(regPackage, XDSConstants.UUID_XDSSubmissionSet_patientId,
-		    String.format("%s^^^%s&%s&NI", patientId, config.getEcidRoot(), config.getEcidRoot()),
+		    String.format("%s^^^%s&%s&ISO", patientId, config.getEcidRoot(), config.getEcidRoot()),
 		    "XDSSubmissionSet.patientId");
 		
 		// Add the eo to the submission
@@ -246,7 +285,7 @@ public class MessageUtil {
 		association.setAssociationType(XDSConstants.HAS_MEMBER);
 		association.setSourceObject(SUBMITION_SET_ID);
 		association.setTargetObject(encounter.getLocation().getUuid() + "/" + patientId + "/"
-		        + encounter.getEncounterType().getUuid() + "/" + encounter.getForm().getUuid() + "/"
+		        + encounter.getEncounterType().getUuid() + "/" + nutritionalSetUuid + "/"
 		        + format.format(encounter.getEncounterDatetime()) + "/" + info.getUniqueId());
 		InfosetUtil.addOrOverwriteSlot(association, XDSConstants.SLOT_NAME_SUBMISSIONSET_STATUS, "Original");
 		registryRequest
@@ -332,7 +371,7 @@ public class MessageUtil {
 	}
 	
 	public Location getPatientLocation(DocumentInfo info) {
-		return info.getPatient().getPatientIdentifier().getLocation();
+		return info.getRelatedEncounter().getLocation();                 //info.getPatient().getPatientIdentifier().getLocation();
 	}
 
 	private ProvideAndRegisterDocumentSetRequestType addDocToRequest(ProvideAndRegisterDocumentSetRequestType requestType,
@@ -410,7 +449,7 @@ public class MessageUtil {
 				String.format("2.25.%s", UUID.randomUUID().getLeastSignificantBits()).replaceAll("-", ""),
 				"XDSDocumentEntry.uniqueId");
 		xdsUtil.addExtenalIdentifier(extrinsicObject, XDSConstants.UUID_XDSDocumentEntry_patientId,
-				String.format("%s^^^%s&%s&NI", patientId, config.getEcidRoot(), config.getEcidRoot()),
+				String.format("%s^^^%s&%s&ISO", patientId, config.getEcidRoot(), config.getEcidRoot()),
 				"XDSDocumentEntry.patientId");
 	}
 

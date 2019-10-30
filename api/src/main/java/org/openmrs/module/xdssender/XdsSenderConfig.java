@@ -48,6 +48,8 @@ public class XdsSenderConfig {
 	private static final String CODE_ST_ROOT = "xdssender.codeStRoot";
 	
 	private static final String XDS_REPO_ENDPOINT = "xdssender.repositoryEndpoint";
+
+	private static final String XDS_REGISTRY_ENDPOINT = "xdssender.registryEndpoint";
 	
 	private final static String XDS_REPO_USERNAME = "xdssender.xdsrepository.username";
 	
@@ -105,11 +107,11 @@ public class XdsSenderConfig {
 	}
 	
 	public String getProviderRoot() {
-		return getProperty(PROVIDER_ROOT, "http://ohie-fr:8080/api/users");
+		return getProperty(PROVIDER_ROOT, "1.2.3.4.5.18"); 		// "http://ohie-fr:8080/api/users");
 	}
 	
 	public String getLocationRoot() {
-		return getProperty(LOCATION_ROOT, "http://ohie-fr:8080/api/organisationUnits");
+		return getProperty(LOCATION_ROOT, "1.2.3.4.5.15");		//"http://ohie-fr:8080/api/organisationUnits");
 	}
 	
 	public String getPatientRoot() {
@@ -121,13 +123,13 @@ public class XdsSenderConfig {
 	}
 	
 	public String getEcidRoot() {
-		return getProperty(ECID_ROOT, "2.16.840.1.113883.4.56");
+		return getProperty(ECID_ROOT, "1.3.6.1.4.1.21367.2010.1.2.300");	//"2.16.840.1.113883.4.56");
 	}
 	
 	public String getCodeNationalRoot() {
-		return getProperty(CODE_NATIONAL_ROOT, "2.25.212283553061960040061731875660599129565");
+		return getProperty(CODE_NATIONAL_ROOT, "2.25.71280592878078638113873461180761116318"); //"2.25.212283553061960040061731875660599129565");
 	}
-	
+
 	public String getCodeStRoot() {
 		return getProperty(CODE_ST_ROOT, "2.25.276946543544871160225835991160192746993");
 	}
@@ -142,6 +144,10 @@ public class XdsSenderConfig {
 	
 	public String getXdsRepositoryEndpoint() {
 		return getProperty(XDS_REPO_ENDPOINT, "http://sedish.net:5001/xdsrepository");
+	}
+
+	public String getXdsRegistryEndpoint() {
+		return getProperty(XDS_REGISTRY_ENDPOINT, "http://sedish.net:5001/xdsregistry");
 	}
 	
 	public String getXdsRepositoryUsername() {

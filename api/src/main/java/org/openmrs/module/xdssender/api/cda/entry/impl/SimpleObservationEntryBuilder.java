@@ -22,7 +22,7 @@ public class SimpleObservationEntryBuilder extends EntryBuilderImpl {
 	 * Create the simple observation
 	 */
 	public Observation generate(CD<String> code, Obs obs) {
-		return this.createObservation(Collections.singletonList(XdsSenderConstants.ENT_TEMPLATE_SIMPLE_OBSERVATION), code,
+		return this.createObservation(Collections.singletonList(XdsSenderConstants.ENT_TEMPLATE_VITAL_SIGNS_OBSERVATION), code,
 		    obs);
 	}
 	

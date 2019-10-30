@@ -47,9 +47,14 @@ public class EncounterEventListener implements EventListener {
 			        || Event.Action.UPDATED.toString().equals(messageAction)) {
 				String uuid = ((MapMessage) message).getString("uuid");
 				Encounter encounter = Context.getEncounterService().getEncounterByUuid(uuid);
-				if (encounter.getForm() == null) {
-					LOGGER.warn("Skipped sending Encounter %s (formId is NULL "
-							+ "-> probably it's the creating encounter)");
+				//if (encounter.getForm() == null) {
+				//	LOGGER.warn("Skipped sending Encounter %s (formId is NULL "
+				//			+ "-> probably it's the creating encounter)");
+				//} else {
+				/** TODO: FIND A ROBUST AND ELEGANT SOLUTION FOR THIS, IMPLEMENTING IT TO GET IT WORKING ASAP **/
+				if (encounter.getEncounterProviders().isEmpty()) {
+					LOGGER.warn("Skipped sending Encounter %s (Encounter already from HIE"
+							+ "-> this is caused by the creating encounter)");
 				} else {
 					Patient patient = Context.getPatientService()
 							.getPatient(encounter.getPatient().getPatientId());
@@ -60,7 +65,10 @@ public class EncounterEventListener implements EventListener {
 
 					try {
 						service.exportProvideAndRegister(encounter, patient);
-					} catch (Exception e) {
+					}
+					catch (Exception e) {
+
+						LOGGER.error("XDS export exception occurred -- TEBOHO KOMA ---", e);
 						ErrorHandlingService errorHandler = config.getXdsBErrorHandlingService();
 						if (errorHandler != null) {
 							LOGGER.error("XDS export exception occurred", e);
@@ -76,7 +84,6 @@ public class EncounterEventListener implements EventListener {
 					}
 				}
 			}
-			
 			Context.closeSession();
 		}
 		catch (JMSException e) {

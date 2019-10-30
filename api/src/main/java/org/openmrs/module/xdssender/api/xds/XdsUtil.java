@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.xml.bind.JAXBException;
+import java.util.UUID;
 
 @Component("xdssender.XdsUtil")
 public final class XdsUtil {
@@ -33,7 +34,7 @@ public final class XdsUtil {
 		retVal.setName(new InternationalStringType());
 		retVal.getName().getLocalizedString().add(new LocalizedStringType());
 		retVal.getName().getLocalizedString().get(0).setValue(name);
-		retVal.setId(String.format("eid%s", classifiedObj.getExternalIdentifier().size()));
+		retVal.setId(String.format("urn:uuid:%s", UUID.randomUUID()));  //String.format("eid%s", classifiedObj.getExternalIdentifier().size()));
 		retVal.setName(new InternationalStringType());
 		retVal.getName().getLocalizedString().add(new LocalizedStringType());
 		retVal.getName().getLocalizedString().get(0).setValue(name);

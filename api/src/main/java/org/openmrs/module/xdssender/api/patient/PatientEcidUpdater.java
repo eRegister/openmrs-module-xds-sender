@@ -22,8 +22,8 @@ public class PatientEcidUpdater {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PatientEcidUpdater.class);
 
-    private static final String ECID_UUID = "f54ed6b9-f5b9-4fd5-a588-8f7561a78401";
-    private static final String CODE_NATIONAL_UUID = "9fb4533d-4fd5-4276-875b-2ab41597f5dd";
+    private static final String ECID_UUID = "a5d38e09-efcb-4d91-a526-50ce1ba5011a";
+    private static final String CODE_NATIONAL_UUID = "81433852-3f10-11e4-adec-0800271c1b75";
     private static final String FETCHER_BEAN_ID = "registrationcore.mpiPatientFetcherPdq";
     private static final String FETCH_PATIENT_METHOD = "fetchMpiPatient";
 

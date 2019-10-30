@@ -17,6 +17,11 @@ public interface DocumentBuilder {
 	 * Get the classcode
 	 */
 	String getTypeCode();
+
+	/**
+	 * Get the code system
+	 */
+	String getCodeSystem();
 	
 	/**
 	 * Get the format code

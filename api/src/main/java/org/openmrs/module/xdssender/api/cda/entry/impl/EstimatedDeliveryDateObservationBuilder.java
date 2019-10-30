@@ -34,18 +34,24 @@ public class EstimatedDeliveryDateObservationBuilder extends EntryBuilderImpl {
 		Observation deliveryDateObs = super.createObservation(Arrays
 		        .asList(XdsSenderConstants.ENT_TEMPLATE_SIMPLE_OBSERVATION), new CD<String>("11779-6",
 		        XdsSenderConstants.CODE_SYSTEM_LOINC, XdsSenderConstants.CODE_SYSTEM_NAME_LOINC, null,
-		        "Delivery date estimated from date of last menstrual period", null), estimatedDeliveryDateObs), eddObs = super
+		        "Delivery date estimated from date of last menstrual period", null), estimatedDeliveryDateObs)
+
+				, eddObs = super
 		        .createObservation(Arrays.asList(XdsSenderConstants.ENT_TEMPLATE_SIMPLE_OBSERVATION,
 		            XdsSenderConstants.ENT_TEMPLATE_DELIVERY_DATE_OBSERVATION), new CD<String>("11778-8",
 		                XdsSenderConstants.CODE_SYSTEM_LOINC, XdsSenderConstants.CODE_SYSTEM_NAME_LOINC, null,
-		                "Delivery Date - Estimate", null), estimatedDeliveryDateObs), lmpObs = super.createObservation(
+		                "Delivery Date - Estimate", null), estimatedDeliveryDateObs)
+
+				, lmpObs = super.createObservation(
 		    Arrays.asList(XdsSenderConstants.ENT_TEMPLATE_SIMPLE_OBSERVATION), new CD<String>("8655-2",
 		            XdsSenderConstants.CODE_SYSTEM_LOINC, XdsSenderConstants.CODE_SYSTEM_NAME_LOINC, null,
 		            "Date of last menstrual period - reported", null), lastMenstrualPeriodObs);
+
 		eddObs.getEntryRelationship().add(
 		    new EntryRelationship(x_ActRelationshipEntryRelationship.SPRT, BL.TRUE, deliveryDateObs));
 		deliveryDateObs.getEntryRelationship().add(
 		    new EntryRelationship(x_ActRelationshipEntryRelationship.SPRT, BL.TRUE, lmpObs));
+
 		return eddObs;
 	}
 	

@@ -18,4 +18,20 @@
             </list>
         </property>
     </bean>
+
+    <!--<bean parent="serviceContext">
+        <property name="moduleService">
+            <list>
+                <value>org.openmrs.module.xdssender.api.service.XdsAdhocQueryService</value>
+                <ref bean="xdsSender.XdsAdhocQueryService" />
+            </list>
+        </property>
+    </bean>-->
+
+    <bean id="xdssender.XdsAdhocQueryService"
+          class="org.openmrs.module.xdssender.api.service.impl.XdsAdhocQueryServiceImpl"/>
+
+    <bean id="xdsSender.XdsRetrieveDocumentSetService"
+          class="org.openmrs.module.xdssender.api.service.impl.XdsRetriveDocumentSetServiceImpl"/>
+
 </beans>

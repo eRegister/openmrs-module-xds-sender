@@ -84,7 +84,9 @@ public class CdaMetadataUtil {
 				return retVal;
 			}
 			// First, we need to find the reference term that represents the most applicable
-			Queue<ConceptReferenceTerm> preferredCodes = new ArrayDeque<ConceptReferenceTerm>(), equivalentCodes = new ArrayDeque<ConceptReferenceTerm>(), narrowerCodes = new ArrayDeque<ConceptReferenceTerm>();
+			Queue<ConceptReferenceTerm> preferredCodes = new ArrayDeque<ConceptReferenceTerm>()
+					, equivalentCodes = new ArrayDeque<ConceptReferenceTerm>()
+					, narrowerCodes = new ArrayDeque<ConceptReferenceTerm>();
 			
 			// Mappings
 			String targetCodeSystemName = this.conceptUtil.mapOidToConceptSourceName(targetCodeSystem);
@@ -119,7 +121,8 @@ public class CdaMetadataUtil {
 				retVal = clazz.newInstance();
 				retVal.setNullFlavor(NullFlavor.Other);
 				if (retVal instanceof CV) {
-					((CV<?>) retVal).setCodeSystem(targetCodeSystemName);
+					((CV<?>) retVal).setCodeSystem(targetCodeSystem);
+					((CV<?>) retVal).setCodeSystemName(targetCodeSystemName);
 				}
 			} else {
 				retVal = this.createCode(preferredTerm, clazz);

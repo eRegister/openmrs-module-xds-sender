@@ -75,8 +75,9 @@ public class ExtrinsicObject extends ExtrinsicObjectType {
         InfosetUtil.addOrOverwriteSlot(this, XDSConstants.SLOT_NAME_SOURCE_PATIENT_ID,
                 String.format("%s^^^&%s&ISO", patientId, config.getEcidRoot()));
         InfosetUtil.addOrOverwriteSlot(this, XDSConstants.SLOT_NAME_SOURCE_PATIENT_INFO,
+                String.format("PID-3|%s^^^&%s&ISO", patientId, config.getEcidRoot()),
                 String.format("PID-3|%s^^^&%s&ISO", nationalIdentifier.getIdentifier(), config.getCodeNationalRoot()),
-                String.format("PID-3|%s^^^&%s&ISO", siteIdentifier.getIdentifier(), config.getCodeStRoot()),
+                //String.format("PID-3|%s^^^&%s&ISO", siteIdentifier.getIdentifier(), config.getCodeStRoot()),
                 String.format("PID-5|%s^%s^^^", info.getPatient().getFamilyName(), info.getPatient().getGivenName()),
                 String.format("PID-7|%s", patientDob.getValue()), String.format("PID-8|%s", info.getPatient().getGender()),
                 String.format("PID-11|%s", location));
