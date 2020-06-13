@@ -142,6 +142,21 @@
 		<description>Endpoint used to fetch Notifications from the Pull Point</description>
 	</globalProperty>
 
+	<globalProperty>
+		<property>xdssender.ecidRoot</property>
+		<description>Authority domain for the OpenEMPI enterprise Global ID</description>
+	</globalProperty>
+
+	<globalProperty>
+		<property>xdssender.locationRoot</property>
+		<description>The ID used for the locationRoot</description>
+	</globalProperty>
+
+	<globalProperty>
+		<property>xdssender.codeNationalRoot</property>
+		<description>Authority domain for the specific health facility patient identifier domain</description>
+	</globalProperty>
+
 	<!-- AOP
 	<advice>
 		<point>org.openmrs.api.FormService</point>

@@ -111,7 +111,7 @@ public class XdsSenderConfig {
 	}
 	
 	public String getLocationRoot() {
-		return getProperty(LOCATION_ROOT, "1.2.3.4.5.15");		//"http://ohie-fr:8080/api/organisationUnits");
+		return getProperty(LOCATION_ROOT, "1.3.6.1.4.1.21367.2010.1.2");		//"http://ohie-fr:8080/api/organisationUnits");
 	}
 	
 	public String getPatientRoot() {
@@ -123,11 +123,11 @@ public class XdsSenderConfig {
 	}
 	
 	public String getEcidRoot() {
-		return getProperty(ECID_ROOT, "1.3.6.1.4.1.21367.2010.1.2.300");	//"2.16.840.1.113883.4.56");
+		return getProperty(ECID_ROOT, "2.16.840.1.113883.4.357");
 	}
 	
 	public String getCodeNationalRoot() {
-		return getProperty(CODE_NATIONAL_ROOT, "2.25.71280592878078638113873461180761116318"); //"2.25.212283553061960040061731875660599129565");
+		return getProperty(CODE_NATIONAL_ROOT, "2.25.71280592878078638113873461180761116318");
 	}
 
 	public String getCodeStRoot() {

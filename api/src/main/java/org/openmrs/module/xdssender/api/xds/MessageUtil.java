@@ -1,5 +1,6 @@
 package org.openmrs.module.xdssender.api.xds;
 
+import net.sf.cglib.core.Local;
 import org.dcm4chee.xds2.common.XDSConstants;
 import org.dcm4chee.xds2.infoset.ihe.ProvideAndRegisterDocumentSetRequestType;
 import org.dcm4chee.xds2.infoset.rim.AssociationType1;
@@ -42,7 +43,7 @@ public class MessageUtil {
 	
 	private static final String ECID_NAME = "ECID";
 	
-	private static final String CODE_NATIONAL_NAME = "Code National";
+	private static final String CODE_NATIONAL_NAME = "Patient Identifier";
 	
 	private static final String CODE_ST_NAME = "Code ST";
 
@@ -97,7 +98,8 @@ public class MessageUtil {
 																							 final DocumentInfo info,
 																							 Encounter encounter)
 			throws JAXBException {
-		String patientId = getPatientIdentifier(info).getIdentifier();
+		// String patientId = getPatientIdentifier(info).getIdentifier();
+		String patientId = getNationalPatientIdentifier(info).getIdentifier();
 		String location = getPatientLocation(info).getName();
 
 		ProvideAndRegisterDocumentSetRequestType retVal = new ProvideAndRegisterDocumentSetRequestType();
@@ -110,7 +112,7 @@ public class MessageUtil {
 		SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
 
 		// TODO: Must set the formId to the UUID of the Root Concept Set when using the Bahmni (forms 1) and Form ID otherwise
-		// TODO: Temporarily using the nutritional set UUID for initial release, must change - Teboho Koma
+		// TODO: Temporarily using the nutritional set UUID for initial release, must change
 		// ODD
 		//if (encounter.getForm() == null) {
 		//	throw new RuntimeException("Cannot send encounter without formId");
@@ -161,14 +163,16 @@ public class MessageUtil {
 		TS patientDob = cdaDataUtil.createTS(info.getPatient().getBirthdate());
 		patientDob.setDateValuePrecision(TS.DAY);
 		InfosetUtil.addOrOverwriteSlot(oddRegistryObject, XDSConstants.SLOT_NAME_SOURCE_PATIENT_ID,
-		    String.format("%s^^^&%s&ISO", patientId, config.getEcidRoot()));
+				String.format("%s^^^&%s&ISO", patientId, config.getCodeNationalRoot()));
+		    //String.format("%s^^^&%s&ISO", patientId, config.getEcidRoot()));
 		InfosetUtil.addOrOverwriteSlot(oddRegistryObject, XDSConstants.SLOT_NAME_SOURCE_PATIENT_INFO,
-				String.format("PID-3|%s^^^&%s&ISO", patientId, config.getEcidRoot()),
+				//String.format("PID-3|%s^^^&%s&ISO", patientId, config.getEcidRoot()),
 				String.format("PID-3|%s^^^&%s&ISO", nationalIdentifier.getIdentifier(), config.getCodeNationalRoot()),
 				//String.format("PID-3|%s^^^&%s&ISO", siteIdentifier.getIdentifier(), config.getCodeStRoot()),
 				String.format("PID-5|%s^%s^^^", info.getPatient().getFamilyName(), info.getPatient().getGivenName()),
-				String.format("PID-7|%s", patientDob.getValue()), String.format("PID-8|%s", info.getPatient().getGender()),
-				String.format("PID-11|%s", location));
+				String.format("PID-7|%s", patientDob.getValue()), String.format("PID-8|%s", info.getPatient().getGender())
+				//,String.format("PID-11|%s", location)
+		);
 		InfosetUtil.addOrOverwriteSlot(oddRegistryObject, XDSConstants.SLOT_NAME_LANGUAGE_CODE, Context.getLocale()
 				.toString());
 		InfosetUtil.addOrOverwriteSlot(oddRegistryObject, XDSConstants.SLOT_NAME_CREATION_TIME, new SimpleDateFormat(
@@ -320,9 +324,10 @@ public class MessageUtil {
 					siteCode = attribute.getValue().toString();
 				}
 			}
-			
-			String institutionText = String.format("%s^^^^^&%s&ISO^^^^%s", info.getRelatedEncounter().getLocation()
-			        .getName(), config.getLocationRoot(), siteCode);
+
+			Location serviceLocation = info.getRelatedEncounter().getLocation();
+			String institutionText = String.format("%s^^^^^&%s&ISO^^^^%s", serviceLocation.getParentLocation().getName(),
+					config.getLocationRoot(), getLocationSiteCode(serviceLocation.getParentLocation()));
 			
 			InfosetUtil.addOrOverwriteSlot(authorClass, XDSConstants.SLOT_NAME_AUTHOR_PERSON, authorText);
 			InfosetUtil.addOrOverwriteSlot(authorClass, "authorInstitution", institutionText);
@@ -335,6 +340,16 @@ public class MessageUtil {
 		retVal.getDocument().add(doc);
 		
 		return retVal;
+	}
+
+	private String getLocationSiteCode(Location location) {
+		String siteCode = "";
+		for (LocationAttribute attribute : location.getAttributes()) {
+			if (attribute.getAttributeType().getUuid().equals(XdsSenderConstants.LOCATION_SITECODE_ATTRIBUTE_UUID)) {
+				siteCode = attribute.getValue().toString();
+			}
+		}
+		return siteCode;
 	}
 	
 	public PatientIdentifier getPatientIdentifier(DocumentInfo info) {
@@ -405,7 +420,7 @@ public class MessageUtil {
 
 	private ExtrinsicObjectType createExtrinsicObjectType(DocumentInfo info, Encounter encounter) throws JAXBException {
 		String patientId = getPatientIdentifier(info).getIdentifier();
-		String location = getPatientLocation(info).getName();
+		String location = "Botha-Bothe Hosp";               // getPatientLocation(info).getName();
 
 		ExtrinsicObject extrinsicObject = new ExtrinsicObject(patientId, location);
 		extrinsicObject.setId(encounter, info);

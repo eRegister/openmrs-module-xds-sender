@@ -65,23 +65,102 @@ public class ClinicalDocumentBuilder {
 
 		List<Obs> medicationObs = new ArrayList<Obs>();
 
-		// TODO: REMEMBER TO INCLUDE WHO STAGING AND T STAGING - TEBOHO KOMA
+		// TODO: REMEMBER TO INCLUDE WHO STAGING AND T STAGING
 		// Include HIV Sentinel events observations
 		Obs firstHIVPosTestObs = null, secondHIVPosRetestObs = null, artStartDate = null, artStartRegimenObs = null,
 				baselineCD4Count = null, currentCD4Count = null, currentARVRegimen = null, hivViralLoadObs = null,
 				pregnancyStatusObs = null;
 
-		log.info("DISPLAYING OBS INSIDE THE ENCOUNTER --- TEBOHO KOMA");
-		for (Obs obs : encounter.getObs()) {
-			log.info(obs.getConcept().getName());
 
-			if (obs.getConcept().getName().toString().equalsIgnoreCase("WEIGHT")) {
-				weightObs = new Obs();
-				weightObs = obs;
-			} else if (obs.getConcept().getName().toString().equalsIgnoreCase("HEIGHT")) {
-				heightObs = new Obs();
-				heightObs = obs;
-			} else if (obs.getConcept().getName().toString().equalsIgnoreCase("Temperature")) {
+		// Use the Encounter types to determine what observations to save to the HIE
+		Boolean hivIntakeForm = false, hivFollowUpForm = false, htsForm = false, nutritionAssessmentForm = false,
+				vitalsForm = false;
+
+		for (Obs obs : encounter.getObs()) {
+
+			// Use the Encounter types to determine which data elements to send to the HIE - Key Events
+			String rootConceptName = getRootConceptName(obs);
+
+			if (rootConceptName.equalsIgnoreCase("Vitals")) {
+				vitalsForm = true;
+				if (obs.getConcept().getName().toString().equalsIgnoreCase("WEIGHT")) {
+					weightObs = new Obs();
+					weightObs = obs;
+				}
+
+				if (obs.getConcept().getName().toString().equalsIgnoreCase("HEIGHT")) {
+					heightObs = new Obs();
+					heightObs = obs;
+				}
+
+				if (obs.getConcept().getName().toString().equalsIgnoreCase("Temperature")) {
+					temperatureObs = new Obs();
+					temperatureObs = obs;
+				}
+
+				if (obs.getConcept().getName().toString().equalsIgnoreCase("Systolic")) {
+					systolicBpObs = new Obs();
+					systolicBpObs = obs;
+				}
+
+				if (obs.getConcept().getName().toString().equalsIgnoreCase("Diastolic")) {
+					diastolicBpObs = new Obs();
+					diastolicBpObs = obs;
+				}
+			}
+
+			if (rootConceptName.equalsIgnoreCase("Nutritional Values")) {
+				nutritionAssessmentForm = true;
+				if (obs.getConcept().getName().toString().equalsIgnoreCase("WEIGHT")) {
+					weightObs = new Obs();
+					weightObs = obs;
+				}
+
+				if (obs.getConcept().getName().toString().equalsIgnoreCase("HEIGHT")) {
+					heightObs = new Obs();
+					heightObs = obs;
+				}
+
+				if (obs.getConcept().getName().toString().equalsIgnoreCase("Systolic")) {
+					systolicBpObs = new Obs();
+					systolicBpObs = obs;
+				}
+
+				if (obs.getConcept().getName().toString().equalsIgnoreCase("Diastolic")) {
+					diastolicBpObs = new Obs();
+					diastolicBpObs = obs;
+				}
+			}
+
+			if (rootConceptName.equalsIgnoreCase("HIV Testing and Counseling Intake Template")) {
+				htsForm = true;
+				if (obs.getConcept().getName().toString().equalsIgnoreCase("HTC, Final HIV status")) {
+					firstHIVPosTestObs = new Obs();
+					firstHIVPosTestObs = obs;
+				}
+			}
+
+			if(rootConceptName.equalsIgnoreCase("HIV Treatment and Care Intake Template")) {
+				hivFollowUpForm = true;
+				if (obs.getConcept().getName().toString().equalsIgnoreCase("HIVTC, ART start date")) {
+					artStartDate = new Obs();
+					artStartDate = obs;
+				}
+			}
+
+			if (rootConceptName.equalsIgnoreCase("HIV Treatment and Care Progress Template")) {
+				if (obs.getConcept().getName().toString().equalsIgnoreCase("HIVTC, Viral Load")) {
+					hivViralLoadObs = new Obs();
+					hivViralLoadObs = obs;
+				}
+
+				if (obs.getConcept().getName().toString().equalsIgnoreCase("HIVTC, CD4")) {
+					baselineCD4Count = new Obs();
+					baselineCD4Count = obs;
+				}
+			}
+
+			/*else if (obs.getConcept().getName().toString().equalsIgnoreCase("Temperature")) {
 				temperatureObs = new Obs();
 				temperatureObs = obs;
 			} else if (obs.getConcept().getName().toString().equalsIgnoreCase("Systolic")) {
@@ -100,7 +179,9 @@ public class ClinicalDocumentBuilder {
 					secondHIVPosRetestObs = new Obs();
 					secondHIVPosRetestObs = obs;
 				}
-			} else if (obs.getConcept().getName().toString().equalsIgnoreCase("HIVTC, ART start date")) {
+			}
+
+			if (obs.getConcept().getName().toString().equalsIgnoreCase("HIVTC, ART start date")) {
 				artStartDate = new Obs();
 				artStartDate = obs;
 			} else if(obs.getConcept().getName().toString().equalsIgnoreCase("HIVTC, ART Regimen")){
@@ -112,28 +193,26 @@ public class ClinicalDocumentBuilder {
 				} else if(rootConceptName.equalsIgnoreCase("HIV Treatment and Care Progress Template")){
 					currentARVRegimen = new Obs();
 					currentARVRegimen = obs;
+				} else if (obs.getConcept().getName().toString().equalsIgnoreCase("HTC, Pregnancy Status")) {
+					pregnancyStatusObs = new Obs();
+					pregnancyStatusObs = obs;
 				}
-			} else if (obs.getConcept().getName().toString().equalsIgnoreCase("HIVTC, CD4")) {
-				// Check if the root concept for the Obs is the HTS Testing Register
-				String rootConceptName = getRootConceptName(obs);
-				if (rootConceptName.equalsIgnoreCase("HIV Treatment and Care Intake Template")) {
-					baselineCD4Count = new Obs();
-					baselineCD4Count = obs;
-				} else if (rootConceptName.equalsIgnoreCase("HIV Treatment and Care Progress Template")) {
-					currentCD4Count = new Obs();
-					currentCD4Count = obs;
-				}
-			} else if (obs.getConcept().getName().toString().equalsIgnoreCase("HIVTC, Viral Load")) {
-				hivViralLoadObs = new Obs();
-				hivViralLoadObs = obs;
-			} else if(obs.getConcept().getName().toString().equalsIgnoreCase("HTC, Pregnancy Status")) {
-				pregnancyStatusObs = new Obs();
-				pregnancyStatusObs = obs;
-			}
-		}
-		log.info("DONE DISPLAYING OBS INSIDE THE ENCOUNTER -- TEBOHO KOMA");
 
-		
+				if (obs.getConcept().getName().toString().equalsIgnoreCase("HIVTC, CD4")) {
+					// Check if the root concept for the Obs is the HTS Testing Register
+					// String rootConceptName = getRootConceptName(obs);
+					if (rootConceptName.equalsIgnoreCase("HIV Treatment and Care Intake Template")) {
+						baselineCD4Count = new Obs();
+						baselineCD4Count = obs;
+					} else if (rootConceptName.equalsIgnoreCase("HIV Treatment and Care Progress Template")) {
+						currentCD4Count = new Obs();
+						currentCD4Count = obs;
+					}
+				}
+			}*/
+
+		}
+
 		// Obs relevant to this encounter
 		Collection<Obs> relevantObs = null;
 		//if (builder.getEncounterEvent() == Context.getObsService().getObservationsByPerson(builder.getRecordTarget()))
@@ -151,21 +230,62 @@ public class ClinicalDocumentBuilder {
 		}
 		
 		Section eddSection = null, flowsheetSection = null, vitalSignsSection = null, medicationsSection = null, probSection = null, allergySection = null;
-		
-		if (estimatedDeliveryDateObs != null && lastMenstrualPeriodObs != null)
+
+		if(nutritionAssessmentForm || vitalsForm) {
+			if(weightObs != null && heightObs != null && temperatureObs == null && systolicBpObs == null &&
+					diastolicBpObs == null) {
+				vitalSignsSection = vitalSignsSectionBuilder.generate(weightObs, heightObs);
+			} else if(weightObs != null && heightObs != null && temperatureObs == null && systolicBpObs != null &&
+					diastolicBpObs != null) {
+				vitalSignsSection = vitalSignsSectionBuilder.generate(weightObs, heightObs, systolicBpObs, diastolicBpObs);
+			} else if(weightObs != null && heightObs != null && temperatureObs != null && systolicBpObs != null &&
+					diastolicBpObs != null) {
+				vitalSignsSection = vitalSignsSectionBuilder.generate(weightObs, heightObs, temperatureObs,
+						systolicBpObs, diastolicBpObs);
+			}
+		} else if (htsForm) {
+			vitalSignsSection = vitalSignsSectionBuilder.generate(firstHIVPosTestObs);
+
+		} else if (htsForm && hivIntakeForm) {
+			// vitalSignsSection = vitalSignsSectionBuilder.generate(firstHIVPosTestObs, artStartDate);
+
+		} else if (hivIntakeForm) {
+			// vitalSignsSection = vitalSignsSectionBuilder.generate(firstHIVPosTestObs, artStartDate);
+
+		} else if (hivFollowUpForm) {
+			if (baselineCD4Count != null) {
+				 // vitalSignsSection = vitalSignsSectionBuilder.generate(baselineCD4Count);
+
+			} else if (hivViralLoadObs != null) {
+				// vitalSignsSection = vitalSignsSectionBuilder.generate(hivViralLoadObs);
+
+			} else if (baselineCD4Count != null && hivViralLoadObs != null) {
+				// vitalSignsSection = vitalSignsSectionBuilder.generate(baselineCD4Count,hivViralLoadObs);
+
+			}
+		}
+
+/*		if (estimatedDeliveryDateObs != null && lastMenstrualPeriodObs != null)
 			eddSection = eddSectionBuilder.generate(estimatedDeliveryDateObs, lastMenstrualPeriodObs);
-		
+
 		if (gestgationalAgeObs != null && systolicBpObs != null && diastolicBpObs != null && weightObs != null)
 			flowsheetSection = flowsheetSectionBuilder.generate(prepregnancyWeightObs, gestgationalAgeObs, fundalHeightObs,
 			    presentationObs, systolicBpObs, diastolicBpObs, weightObs);
-		
+
 		if (systolicBpObs != null && diastolicBpObs != null && weightObs != null && heightObs != null
 		        && temperatureObs != null)
 			vitalSignsSection = vitalSignsSectionBuilder.generate(systolicBpObs, diastolicBpObs, weightObs, heightObs,
 			    temperatureObs, baselineCD4Count, artStartRegimenObs, firstHIVPosTestObs, hivViralLoadObs, pregnancyStatusObs);
 
-		//medicationsSection = medSectionBuilder.generate(medicationObs.toArray(new Obs[] {}));
+		if (systolicBpObs != null && diastolicBpObs != null && weightObs != null && heightObs != null
+				&& temperatureObs != null) {
+			vitalSignsSection = vitalSignsSectionBuilder.generate(systolicBpObs, diastolicBpObs, weightObs, heightObs,
+					temperatureObs, baselineCD4Count, artStartRegimenObs, firstHIVPosTestObs, hivViralLoadObs,
+					pregnancyStatusObs);
+		}
+*/
 
+		//medicationsSection = medSectionBuilder.generate(medicationObs.toArray(new Obs[] {}));
 
 		Location visitLocation = Context.getLocationService().getDefaultLocation();;
 

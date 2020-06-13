@@ -76,8 +76,7 @@ public class XdsAdhocQueryServiceImpl extends BaseOpenmrsService implements XdsA
 
 	@Override
 	public List<AdhocQueryDocumentData> queryXdsRegistry(String patientIdentifier, Date fromDate, Date toDate) {
-		//String PATIENT_ID = "'" + patientIdentifier + "^^^&1.3.6.1.4.1.21367.2010.1.2.300&ISO'";
-		String PATIENT_ID = "'" + patientIdentifier + "^^^&2.25.71280592878078638113873461180761116318&PI'";
+		String PATIENT_ID = "'" + patientIdentifier + "^^^&" + config.getCodeNationalRoot() + "&PI'";
 		String DOCUMENT_ENTRY_STATUS = "('"+XDSConstants.STATUS_APPROVED+"')";
 		String SERVICE_START_TIME = formatDate(fromDate) + START_TIME;
 		String SERVICE_STOP_TIME = formatDate(toDate) + STOP_TIME;

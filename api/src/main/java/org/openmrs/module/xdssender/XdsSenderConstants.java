@@ -91,7 +91,7 @@ public final class XdsSenderConstants {
 	
 	public static final String CODE_SYSTEM_FAMILY_MEMBER = "2.16.840.1.113883.5.111";
 	
-	public static final String CODE_SYSTEM_CIEL = "2.16.840.1.113883.3.7201";   //"9.9.9.9.9.9.9"; // TODO: Get the actual OID for this
+	public static final String CODE_SYSTEM_CIEL = "9.9.9.9.9.9.9"; // TODO: Get the actual OID for this
 	
 	public static final String CODE_SYSTEM_UCUM = "2.16.840.1.113883.6.8";
 	
@@ -484,7 +484,7 @@ public final class XdsSenderConstants {
 	
 	public static final String SCT_TEMPLATE_HISTORY_OF_BLOOD_TRANSFUSIONS = "1.3.6.1.4.1.19376.1.5.3.1.1.9.12";
 	
-	public static final String LOCATION_SITECODE_ATTRIBUTE_UUID = "6242bf19-207e-4076-9d28-9290525b8ed9";
+	public static final String LOCATION_SITECODE_ATTRIBUTE_UUID = "c1e403a0-3f10-11e4-adec-0800271c1b75";
 	
 	private XdsSenderConstants() {
 	}

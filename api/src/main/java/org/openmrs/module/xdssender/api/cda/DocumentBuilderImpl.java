@@ -173,7 +173,7 @@ public class DocumentBuilderImpl implements DocumentBuilder {
 						Author aut = new Author(ContextControl.OverridingPropagating);
 						aut.setTime(new TS());
 						aut.getTime().setNullFlavor(NullFlavor.NoInformation);
-						aut.setAssignedAuthor(cdaDataUtil.createAuthorPerson(pvdr));
+						aut.setAssignedAuthor(cdaDataUtil.createAuthorPerson(pvdr, location));
 						retVal.getAuthor().add(aut);
 					}
 					for (Provider pvdr : encounterProvider.getValue()) {
@@ -200,7 +200,7 @@ public class DocumentBuilderImpl implements DocumentBuilder {
 					Author aut = new Author(ContextControl.OverridingPropagating);
 					aut.setTime(new TS());
 					aut.getTime().setNullFlavor(NullFlavor.NoInformation);
-					aut.setAssignedAuthor(cdaDataUtil.createAuthorPerson(provider.iterator().next()));
+					aut.setAssignedAuthor(cdaDataUtil.createAuthorPerson(provider.iterator().next(), location));
 					retVal.getAuthor().add(aut);
 				}
 				
@@ -218,7 +218,7 @@ public class DocumentBuilderImpl implements DocumentBuilder {
 			retVal.getDocumentationOf().add(new DocumentationOf(event));
 			
 			// Record target
-			retVal.getRecordTarget().add(cdaDataUtil.createRecordTarget(recordTarget));
+			retVal.getRecordTarget().add(cdaDataUtil.createRecordTarget(recordTarget, location));
 			
 			// NOK (those within the time covered by this document)
 			for (Relationship relatedPerson : Context.getPersonService().getRelationshipsByPerson(recordTarget)) {

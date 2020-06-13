@@ -175,8 +175,9 @@ public class CdaDataUtil {
 		retVal.setAssignedPerson(new Person(createNameSet(pvdr.getPerson())));
 		
 		PersonAttribute orgAttribute = pvdr.getPerson().getAttribute(XdsSenderConstants.ATTRIBUTE_NAME_ORGANIZATION);
-		if (orgAttribute != null)
+		if (orgAttribute != null) {
 			retVal.setRepresentedOrganization(createOrganization((Location) orgAttribute.getHydratedObject()));
+		}
 
 		return retVal;
 		
@@ -296,10 +297,45 @@ public class CdaDataUtil {
 			retVal.setAssignedAuthorChoice(new Person(createNameSet(pvdr.getPerson())));
 			
 			PersonAttribute orgAttribute = pvdr.getPerson().getAttribute(XdsSenderConstants.ATTRIBUTE_NAME_ORGANIZATION);
-			if (orgAttribute != null)
+			if (orgAttribute != null) {
 				retVal.setRepresentedOrganization(createOrganization((Location) orgAttribute.getHydratedObject()));
+			}
 		} else
 			retVal.setAssignedAuthorChoice(new AuthoringDevice(null, new SC(pvdr.getName()), null, null));
+
+		return retVal;
+	}
+
+	/**
+	 * Creates an assigned author
+	 */
+	public AssignedAuthor createAuthorPerson(Provider pvdr, Location location) {
+		AssignedAuthor retVal = new AssignedAuthor();
+
+		// Get the ID
+		retVal.setId(SET.createSET(new II(config.getProviderRoot(), pvdr.getId().toString()), new II(config.getUserRoot(),
+				pvdr.getIdentifier())));
+
+		// Set telecom
+		if (pvdr.getPerson() != null) {
+			retVal.setTelecom(createTelecomSet(pvdr.getPerson()));
+
+			// Get the address
+			retVal.setAddr(createAddressSet(pvdr.getPerson()));
+
+			// Get names
+			retVal.setAssignedAuthorChoice(new Person(createNameSet(pvdr.getPerson())));
+
+			PersonAttribute orgAttribute = pvdr.getPerson().getAttribute(XdsSenderConstants.ATTRIBUTE_NAME_ORGANIZATION);
+			if (orgAttribute != null) {
+				retVal.setRepresentedOrganization(createOrganization((Location) orgAttribute.getHydratedObject()));
+			}
+		} else
+			retVal.setAssignedAuthorChoice(new AuthoringDevice(null, new SC(pvdr.getName()), null, null));
+		if(location.getName() != null && location.getParentLocation().getName() != null) {
+			retVal.setRepresentedOrganization(createOrganization(location));
+		}
+
 		return retVal;
 	}
 	
@@ -315,19 +351,23 @@ public class CdaDataUtil {
 		    XdsSenderConstants.ATTRIBUTE_NAME_EXTERNAL_ID);
 		if (externalId != null)
 			retVal.getId().add(parseIIFromString(externalId.getValue().toString()));
-		retVal.getId().add(new II(config.getLocationRoot(), getLocationSiteCode(location)));
+		retVal.getId().add(new II(config.getLocationRoot(), getLocationSiteCode(location.getParentLocation())));   // USING LOCATION NAME, SO AS TO DEFAULT TO THE SERVICE POINT NAME
 		
 		// Name , etc. ?
-		if (location.getName() != null)
+		if (location.getName() != null && location.getParentLocation().getName() != null) {
 			retVal.setName(SET.createSET(new ON((EntityNameUse) null,
-			        Collections.singletonList(new ENXP(location.getName())))));
+					Collections.singletonList(new ENXP(location.getParentLocation().getName())))));  // USING THE PARENT LOCATION, SO AS TO DEFAULT TO FACILITY NAME
+		} else if (location.getName() != null && location.getParentLocation().getName() == null){
+			retVal.setName(SET.createSET(new ON((EntityNameUse) null,
+					Collections.singletonList(new ENXP(location.getName())))));     // DEFAULTING TO SERVICE POINT LOCATION, SHOULD EVALUATE SINCE THIS IS NOT APPROPRIATE
+		}
 		
 		// Address
 		retVal.setAddr(SET.createSET(createAddressSet(location)));
 		
 		// TODO:
-		retVal.setTelecom(SET.createSET(new TEL()));
-		retVal.getTelecom().get(0).setNullFlavor(NullFlavor.NoInformation);
+		// retVal.setTelecom(SET.createSET(new TEL()));
+		// retVal.getTelecom().get(0).setNullFlavor(NullFlavor.NoInformation);
 		
 		if (location.getParentLocation() != null) {
 			retVal.setAsOrganizationPartOf(new OrganizationPartOf());
@@ -339,7 +379,7 @@ public class CdaDataUtil {
 				retVal.getAsOrganizationPartOf().getId().add(parseIIFromString(externalId.getValue().toString()));
 			retVal.getAsOrganizationPartOf().getId()
 			        .add(new II(config.getLocationRoot(), getLocationSiteCode(location.getParentLocation())));
-			
+
 			if (location.getParentLocation().getRetired())
 				retVal.getAsOrganizationPartOf().setStatusCode(RoleStatus.Terminated);
 			else
@@ -435,20 +475,21 @@ public class CdaDataUtil {
 			retVal.getTelecom().setNullFlavor(NullFlavor.NoInformation);
 		} else {
 			retVal.setName(new ON());
-			retVal.getName().getParts().add(new ENXP(shrLocation.getName()));
+			retVal.getName().getParts().add(new ENXP(shrLocation.getParentLocation().getName()));
 			// TODO: Get a root assigned for OpenMRS implementation IDs? Or make the id long enough for an OID
 			LocationAttribute idAttribute = metadataUtil.getLocationAttribute(shrLocation,
 			    XdsSenderConstants.ATTRIBUTE_NAME_EXTERNAL_ID);
 			if (idAttribute != null)
 				retVal.setId(SET.createSET(parseIIFromString(idAttribute.getValue().toString()),
-				    new II(config.getLocationRoot(), getLocationSiteCode(shrLocation))));
+				    new II(config.getLocationRoot(), getLocationSiteCode(shrLocation.getParentLocation()))));
 			else
-				retVal.setId(SET.createSET(new II(config.getLocationRoot(), getLocationSiteCode(shrLocation))));
+				retVal.setId(SET.createSET(new II(config.getLocationRoot(),
+						getLocationSiteCode(shrLocation.getParentLocation()))));
 			
 			retVal.setAddr(createAddressSet(shrLocation));
 			// TODO
-			retVal.setTelecom(new TEL());
-			retVal.getTelecom().setNullFlavor(NullFlavor.NoInformation);
+			// retVal.setTelecom(new TEL());
+			// retVal.getTelecom().setNullFlavor(NullFlavor.NoInformation);
 		}
 		return retVal;
 	}
@@ -470,10 +511,11 @@ public class CdaDataUtil {
 			String pidName = pid.getIdentifierType().getName();
 			String globalPidName = null;
 
-			if(pidName.equalsIgnoreCase("ECID"))
-				globalPidName = "1.3.6.1.4.1.21367.2010.1.2.300";
-			else if(pidName.equalsIgnoreCase("Patient Identifier"))
-				globalPidName = "2.25.71280592878078638113873461180761116318";
+			// COMMENTING IT OUT SO AS TO ALLOW THE CR TO PROVIDE THE LATEST GLOBAL ID TO ENRICH THE DOCUMENT WITH
+			//if(pidName.equalsIgnoreCase("ECID"))
+			//	globalPidName = config.getEcidRoot();
+			if(pidName.equalsIgnoreCase("Patient Identifier"))
+				globalPidName = config.getCodeNationalRoot();
 
 			if(!pidName.equalsIgnoreCase("HIV Program ID")) {
 				II ii = new II(globalPidName, pid.getIdentifier());
@@ -506,7 +548,73 @@ public class CdaDataUtil {
 			hl7Patient.getBirthTime().setDateValuePrecision(TS.YEAR);
 		else
 			hl7Patient.getBirthTime().setDateValuePrecision(TS.DAY);
+
+		// Create Provider Organization
+		// patientRole.setProviderOrganization(createOrganization());
 		
+		return retVal;
+	}
+
+	/**
+	 * Create the record target
+	 */
+	public RecordTarget createRecordTarget(Patient patient, Location location) {
+		RecordTarget retVal = new RecordTarget(ContextControl.OverridingPropagating);
+		PatientRole patientRole = new PatientRole();
+		org.marc.everest.rmim.uv.cdar2.pocd_mt000040uv.Patient hl7Patient = new org.marc.everest.rmim.uv.cdar2.pocd_mt000040uv.Patient();
+
+		retVal.setPatientRole(patientRole);
+		patientRole.setPatient(hl7Patient);
+		// Identifiers
+		patientRole.setId(new SET<II>());
+		for (PatientIdentifier pid : patient.getActiveIdentifiers()) {
+			// Rename to global identifiers
+			String pidName = pid.getIdentifierType().getName();
+			String globalPidName = null;
+
+			// COMMENTING IT OUT SO AS TO ALLOW THE CR TO PROVIDE THE LATEST GLOBAL ID TO ENRICH THE DOCUMENT WITH
+			//if(pidName.equalsIgnoreCase("ECID"))
+			//	globalPidName = config.getEcidRoot();
+			if(pidName.equalsIgnoreCase("Patient Identifier"))
+				globalPidName = config.getCodeNationalRoot();
+
+			if(!pidName.equalsIgnoreCase("HIV Program ID")) {
+				II ii = new II(globalPidName, pid.getIdentifier());
+				if (!patientRole.getId().contains(ii))
+					patientRole.getId().add(ii);
+			}
+		}
+
+		// Address?
+		patientRole.setAddr(createAddressSet(patient));
+
+		// Telecom?
+		patientRole.setTelecom(createTelecomSet(patient));
+
+		// Marital status?
+		PersonAttribute civilStatusCode = patient.getAttribute(XdsSenderConstants.ATTRIBUTE_NAME_CIVIL_STATUS);
+		if (civilStatusCode != null)
+			hl7Patient.setMaritalStatusCode(metadataUtil.getStandardizedCode((Concept) civilStatusCode.getHydratedObject(),
+					XdsSenderConstants.CODE_SYSTEM_MARITAL_STATUS, CE.class));
+
+		// Names
+		hl7Patient.setName(createNameSet(patient));
+
+		// Gender and birth
+		hl7Patient.setAdministrativeGenderCode(new AdministrativeGender(patient.getGender(), AdministrativeGender.Male
+				.getCodeSystem()));
+		hl7Patient.setBirthTime(createTS(patient.getBirthdate()));
+
+		if (patient.getBirthdateEstimated())
+			hl7Patient.getBirthTime().setDateValuePrecision(TS.YEAR);
+		else
+			hl7Patient.getBirthTime().setDateValuePrecision(TS.DAY);
+
+		// Create Provider Organization
+		if(location != null) {
+			patientRole.setProviderOrganization(createOrganization(location));
+		}
+
 		return retVal;
 	}
 	
